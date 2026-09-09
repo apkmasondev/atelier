@@ -1,0 +1,25 @@
+{
+  "name": "atelier",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/test.mjs"
+  },
+  "dependencies": {
+    "three": "0.182.0",
+    "three-mesh-bvh": "0.9.14"
+  },
+  "devDependencies": {
+    "@types/three": "0.182.0",
+    "typescript": "5.9.3",
+    "vite": "7.3.6"
+  }
+}

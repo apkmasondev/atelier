@@ -1,0 +1,579 @@
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/cormorant-italic-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/cormorant-italic-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/cormorant-roman-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(/fonts/cormorant-roman-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/cormorant-roman-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/cormorant-roman-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* The interface is a thin editorial layer over the room: hairlines, small
+   tracked capitals and one serif. Nothing here should look like a control
+   panel — the architecture carries the page. */
+
+:root {
+  --ink: #12110f;
+  --paper: #efe9dd;
+  --paper-dim: rgba(239, 233, 221, 0.62);
+  --paper-faint: rgba(239, 233, 221, 0.28);
+  --bronze: #c0a071;
+  --serif: "Cormorant Garamond", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Inter, system-ui, sans-serif;
+  --pad: clamp(20px, 3.4vw, 54px);
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  outline: none;
+}
+
+/* ------------------------------------------------------------------ layout */
+#ui {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 1.4s var(--ease) 0.25s;
+  padding: var(--pad);
+  padding-top: max(var(--pad), env(safe-area-inset-top));
+  padding-bottom: max(var(--pad), env(safe-area-inset-bottom));
+}
+body.ready #ui { opacity: 1; }
+body.walking #chapter,
+body.walking #cue { opacity: 0; transform: translateY(6px); }
+
+.wordmark {
+  position: absolute;
+  top: var(--pad);
+  left: var(--pad);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
+}
+.wordmark i {
+  width: clamp(24px, 4vw, 58px);
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+/* -------------------------------------------------------------- chapter */
+.chapter {
+  position: absolute;
+  left: var(--pad);
+  bottom: max(var(--pad), env(safe-area-inset-bottom));
+  display: flex;
+  align-items: baseline;
+  gap: clamp(14px, 1.8vw, 26px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+  max-width: min(70vw, 520px);
+}
+.chapter-index {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  color: var(--bronze);
+  opacity: 0.85;
+  padding-bottom: 4px;
+}
+.chapter h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(30px, 5.4vw, 62px);
+  line-height: 0.98;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 26px rgba(0, 0, 0, 0.5);
+}
+.chapter p {
+  margin: 0.7em 0 0;
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5);
+}
+/* The name and its line are wiped in rather than faded, like a title card. */
+.chapter h1 span,
+.chapter p span {
+  display: inline-block;
+  transform: translateY(var(--rise, 0));
+  opacity: var(--fade, 1);
+  transition: transform 0.85s var(--ease), opacity 0.85s var(--ease);
+}
+
+/* ------------------------------------------------------------- the thread */
+#thread {
+  position: absolute;
+  right: calc(var(--pad) - 6px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: min(46vh, 400px);
+  pointer-events: auto;
+}
+#thread .rail {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--paper-faint);
+}
+#thread .fill {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  background: var(--paper);
+  opacity: 0.75;
+  transform-origin: top;
+}
+#thread .tick {
+  position: absolute;
+  left: 50%;
+  width: 7px;
+  height: 1px;
+  margin-left: -3px;
+  background: var(--paper);
+  opacity: 0.3;
+  cursor: pointer;
+  transition: width 0.45s var(--ease), opacity 0.45s var(--ease),
+              margin-left 0.45s var(--ease), background 0.45s var(--ease);
+}
+#thread .tick::after {            /* generous hit area, invisible */
+  content: "";
+  position: absolute;
+  inset: -9px -14px;
+}
+#thread .tick:hover { opacity: 0.85; width: 13px; margin-left: -6px; }
+#thread .tick.on {
+  width: 17px;
+  margin-left: -8px;
+  opacity: 1;
+  background: var(--bronze);
+}
+
+.controls {
+  position: absolute;
+  top: var(--pad);
+  right: var(--pad);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 11px;
+  pointer-events: auto;
+}
+/* Deliberately not buttons: tracked capitals with a hairline that draws in,
+   and one small ring that fills when the thing is on. */
+.ctl {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 9.5px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.6);
+  transition: color 0.4s var(--ease);
+}
+.ctl i {
+  width: 7px;
+  height: 7px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0 currentColor;
+  transition: box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+.ctl span { position: relative; padding-bottom: 3px; }
+.ctl span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+  transition: right 0.45s var(--ease);
+}
+.ctl:hover { color: var(--paper); }
+.ctl:hover span::after { right: 0; }
+.ctl:focus-visible { outline: none; color: var(--paper); }
+.ctl:focus-visible span::after { right: 0; }
+.ctl.on { color: var(--paper); }
+.ctl.on i { box-shadow: inset 0 0 0 4px var(--bronze); border-color: var(--bronze); }
+
+/* The touch joystick draws itself where the thumb lands, and nowhere else. */
+.stick {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 96px;
+  height: 96px;
+  margin: -48px 0 0 -48px;
+  border: 1px solid var(--paper);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
+}
+.stick.on { opacity: 0.22; }
+.stick i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: var(--paper);
+  opacity: 0.5;
+}
+
+/* ---------------------------------------------------------------- hotspots */
+#hotspots { position: absolute; inset: 0; }
+.spot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+}
+.spot.vis { opacity: var(--vis, 1); }
+.spot .dot {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+}
+.spot .halo {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--paper);
+  border-radius: 50%;
+  opacity: 0.55;
+  transition: transform 0.55s var(--ease), opacity 0.55s var(--ease);
+}
+.spot .pulse {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--paper);
+  border-radius: 50%;
+  opacity: 0;
+  animation: spot-pulse 3.6s var(--ease) infinite;
+}
+@keyframes spot-pulse {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  70%  { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.spot .lead {
+  position: absolute;
+  left: 10px;
+  top: 0;
+  height: 1px;
+  width: 0;
+  background: var(--paper);
+  opacity: 0.6;
+  transition: width 0.5s var(--ease);
+}
+.spot .tag {
+  position: absolute;
+  left: 44px;
+  top: -7px;
+  white-space: nowrap;
+  font-size: 9.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.7);
+}
+.spot:hover .halo { transform: scale(1.9); opacity: 0.95; }
+.spot:hover .lead { width: 28px; }
+.spot:hover .tag { opacity: 1; transform: translateX(0); }
+.spot.near .halo { transform: scale(1.45); opacity: 0.8; }
+
+/* ------------------------------------------------------------- cue + hint */
+.cue {
+  position: absolute;
+  right: var(--pad);
+  bottom: max(var(--pad), env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+.cue i {
+  width: 1px;
+  height: 42px;
+  background: linear-gradient(to bottom, transparent, var(--paper) 55%, transparent);
+  opacity: 0.55;
+  animation: cue-run 2.6s var(--ease) infinite;
+}
+@keyframes cue-run {
+  0%   { transform: translateY(-10px) scaleY(0.4); opacity: 0; }
+  40%  { opacity: 0.7; }
+  100% { transform: translateY(12px) scaleY(1); opacity: 0; }
+}
+.cue.gone { opacity: 0; transform: translateY(10px); }
+
+.hint {
+  position: absolute;
+  left: 50%;
+  bottom: calc(max(var(--pad), env(safe-area-inset-bottom)) + 4px);
+  transform: translateX(-50%);
+  font-size: 9.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--paper-dim);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.7s var(--ease);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.7);
+  max-width: min(84vw, 640px);
+  white-space: nowrap;
+}
+@media (max-width: 700px) { .hint { white-space: normal; line-height: 1.9; } }
+.hint.on { opacity: 1; }
+.hint b { color: var(--paper); font-weight: 400; }
+
+.stats {
+  position: absolute;
+  right: var(--pad);
+  top: var(--pad);
+  font: 10px/1.7 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.04em;
+  color: var(--paper-dim);
+  text-align: right;
+  white-space: pre;
+}
+
+/* --------------------------------------------------------- pointer ring */
+.ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 1px solid var(--paper);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9;
+  transition: opacity 0.4s var(--ease), transform 0.35s var(--ease),
+              border-color 0.35s var(--ease);
+  mix-blend-mode: difference;
+}
+body.fine-pointer.ready .ring { opacity: 0.32; }
+body.fine-pointer.ready .ring.hot { opacity: 0.8; transform: scale(1.5); }
+body.walking .ring { opacity: 0 !important; }
+@media (hover: none) { .ring { display: none; } }
+
+/* ------------------------------------------------------------------- veil */
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--ink);
+  display: grid;
+  place-items: center;
+  transition: opacity 1.5s var(--ease), backdrop-filter 1.5s var(--ease);
+}
+.veil.lift { opacity: 0; pointer-events: none; }
+.veil-inner { width: min(70vw, 460px); text-align: center; }
+.veil-mark {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: clamp(26px, 5vw, 46px);
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0;
+  animation: veil-in 1.6s var(--ease) 0.15s forwards;
+}
+.veil-rule {
+  position: relative;
+  margin: 26px 0 12px;
+  height: 1px;
+  background: rgba(239, 233, 221, 0.16);
+  opacity: 0;
+  animation: veil-in 1.6s var(--ease) 0.5s forwards;
+}
+.veil-rule i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--paper);
+  transition: width 0.6s var(--ease);
+}
+.veil-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(239, 233, 221, 0.4);
+  opacity: 0;
+  animation: veil-in 1.6s var(--ease) 0.7s forwards;
+}
+@keyframes veil-in { to { opacity: 1; } }
+
+.fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: 8vw;
+  background: var(--ink) url("/poster.jpg") center / cover no-repeat;
+  color: var(--paper-dim);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 2;
+}
+.fallback[hidden] { display: none; }
+.fallback-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(12, 11, 9, 0.55), rgba(12, 11, 9, 0.86));
+}
+.fallback-body { position: relative; max-width: 34em; }
+.fallback-mark {
+  display: block;
+  margin-bottom: 1.6em;
+  font-family: var(--serif);
+  font-size: clamp(24px, 4.4vw, 40px);
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
+  color: var(--paper);
+}
+.fallback p { margin: 0; }
+
+/* --------------------------------------------------------------- compact */
+@media (max-width: 720px) {
+  #thread { height: 30vh; right: calc(var(--pad) - 10px); }
+  .controls { gap: 14px; }
+  .ctl { font-size: 9px; letter-spacing: 0.22em; }
+  .chapter { max-width: 78vw; }
+  .spot .tag { display: none; }
+  .spot .lead { display: none; }
+}
+
+/* Tall screens: the title block owns the bottom edge, so the cue climbs above
+   the thread and the type steps down a size. */
+body.portrait .cue {
+  bottom: auto;
+  top: 50%;
+  transform: translateY(calc(-50% - min(22vh, 210px)));
+  right: calc(var(--pad) - 3px);
+}
+body.portrait .cue.gone { transform: translateY(calc(-50% - min(22vh, 210px) + 10px)); }
+body.portrait .chapter { max-width: calc(100vw - var(--pad) * 2 - 40px); }
+body.portrait .chapter h1 { font-size: clamp(28px, 9vw, 46px); }
+body.portrait .wordmark { font-size: 12px; letter-spacing: 0.34em; }
+body.portrait #thread { height: 26vh; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cue i, .spot .pulse { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}

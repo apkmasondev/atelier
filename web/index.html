@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#12110f" />
+<title>Atelier — mieszkanie z ogrodem</title>
+<meta name="description" content="Interaktywna prezentacja mieszkania z ogrodem. Spacer w czasie rzeczywistym w przeglądarce." />
+<meta property="og:title" content="Atelier — mieszkanie z ogrodem" />
+<meta property="og:description" content="Interaktywna prezentacja 3D mieszkania i ogrodu, w czasie rzeczywistym w przeglądarce." />
+<meta property="og:image" content="poster.jpg" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preload" href="model/atelier.glb" as="fetch" crossorigin />
+<link rel="preload" href="draco/draco_decoder.wasm" as="fetch" crossorigin />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2312110f'/%3E%3Cpath d='M8 22 L16 9 L24 22' stroke='%23e8e2d6' stroke-width='1.4' fill='none'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+<canvas id="scene" aria-label="Trójwymiarowy widok mieszkania i ogrodu"></canvas>
+
+<!-- Shown only when the scene cannot run at all. -->
+<noscript><div class="fallback"><p>Ta prezentacja wymaga włączonego JavaScriptu.</p></div></noscript>
+<div id="fallback" class="fallback" hidden>
+  <div class="fallback-shade"></div>
+  <div class="fallback-body">
+    <span class="fallback-mark">Atelier</span>
+    <p id="fallbackText"></p>
+  </div>
+</div>
+
+<div id="ui" aria-hidden="false">
+  <div class="wordmark"><span>Atelier</span><i></i></div>
+
+  <div id="chapter" class="chapter">
+    <div class="chapter-index"><span id="chIndex">01</span></div>
+    <div class="chapter-body">
+      <h1 id="chName">Próg</h1>
+      <p id="chLine"></p>
+    </div>
+  </div>
+
+  <nav id="thread" aria-label="Postęp trasy"></nav>
+
+  <div id="controls" class="controls">
+    <button id="btnWalk" class="ctl" type="button"><i></i><span>Spacer</span></button>
+    <button id="btnSound" class="ctl" type="button"><i></i><span>Dźwięk</span></button>
+  </div>
+
+  <div id="stick" class="stick"><i></i></div>
+
+  <div id="hotspots"></div>
+
+  <div id="cue" class="cue"><i></i><span>przewiń</span></div>
+  <div id="hint" class="hint" role="status" aria-live="polite"></div>
+  <div id="stats" class="stats" hidden></div>
+  <div id="ring" class="ring"></div>
+</div>
+
+<div id="veil" class="veil">
+  <div class="veil-inner">
+    <div class="veil-mark">Atelier</div>
+    <div class="veil-rule"><i id="veilFill"></i></div>
+    <div class="veil-meta">
+      <span>Mieszkanie z ogrodem</span>
+      <span id="veilPct">0</span>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

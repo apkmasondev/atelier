@@ -1,0 +1,43 @@
+# Publish only the web application and the Pages workflow.
+/*
+!/.gitignore
+!/.github/
+!/.github/workflows/
+!/.github/workflows/deploy-pages.yml
+!/web/
+!/web/index.html
+!/web/package.json
+!/web/package-lock.json
+!/web/tsconfig.json
+!/web/vite.config.ts
+!/web/src/
+!/web/src/**
+!/web/public/
+!/web/public/**
+
+# Local tools, generated output, audit material and source-scene files.
+/.claude/
+/blender/
+/work/
+/atelier.blend
+*.blend1
+*.md
+web/node_modules/
+web/dist/
+web/audit.html
+web/checks.html
+web/failure.html
+web/scripts/
+
+# Never publish local configuration or credentials.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+.npmrc
+.yarnrc
