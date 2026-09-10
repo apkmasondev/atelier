@@ -71,18 +71,19 @@ export type Hotspot = {
   to: number;
 };
 
-/** Anchored to things, not to empty air: the record player, the fig, the
- *  worktop, the daybed, the basin. */
+/** Anchored to things, not to empty air: the fig, the worktop, the daybed,
+ *  the basin. Every entry is checked against the model by blender/audit.py,
+ *  because a marker keeps pointing at the old spot long after the object
+ *  it names has moved. */
 export const HOTSPOTS: Hotspot[] = [
-  { at: [1.30, 0.28, 0.80], tag: 'Gramofon', station: 1, from: -0.6, to: 1.8 },
   { at: [1.70, 3.26, 0.52], tag: 'Stolik', station: 1, from: 0.4, to: 2.6 },
-  { at: [4.02, 3.46, 1.55], tag: 'Figowiec', station: 2, from: 1.4, to: 3.6 },
+  { at: [3.68, 3.91, 1.51], tag: 'Figowiec', station: 2, from: 1.4, to: 3.6 },
   { at: [3.45, 0.55, 0.90], tag: 'Biurko', station: 3, from: 2.2, to: 4.4 },
   { at: [3.80, 6.30, 1.10], tag: 'Aneks', station: 4, from: 3.3, to: 5.4 },
   { at: [5.85, 2.05, 0.34], tag: 'Leżanka', station: 6, from: 4.6, to: 7.4 },
   { at: [5.62, 5.45, 0.72], tag: 'Stół', station: 6, from: 5.0, to: 7.4 },
   { at: [8.54, 4.70, -0.06], tag: 'Sadzawka', station: 7, from: 6.2, to: 8.6 },
-  { at: [8.75, -0.55, 2.60], tag: 'Brzozy', station: 7, from: 6.4, to: 8.8 },
+  { at: [8.23, -0.34, 3.76], tag: 'Brzozy', station: 7, from: 6.4, to: 8.8 },
 ];
 
 const smoother = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);

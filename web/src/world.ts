@@ -55,6 +55,100 @@ const PRACTICALS: PracticalSpec[] = [
   { at: [7.32, 3.60, 0.28], color: 0xffc48c, power: 4, distance: 4.0 },
 ];
 
+/** Planar UVs across a screen's two largest axes. The exported panel carries
+ *  whatever mapping the box modifier left behind, which is not a 0..1 fit. */
+function fitScreenUV(mesh: T.Mesh) {
+  const geo = mesh.geometry;
+  geo.computeBoundingBox();
+  const bb = geo.boundingBox!;
+  const size = bb.getSize(new T.Vector3());
+  const order = [0, 1, 2].sort((a, b) => size.getComponent(b) - size.getComponent(a));
+  const [u, v] = order[0] < order[1] ? [order[0], order[1]] : [order[1], order[0]];
+  const pos = geo.getAttribute('position');
+  const uv = new Float32Array(pos.count * 2);
+  const du = size.getComponent(u) || 1;
+  const dv = size.getComponent(v) || 1;
+  for (let i = 0; i < pos.count; i++) {
+    uv[i * 2] = (pos.getComponent(i, u) - bb.min.getComponent(u)) / du;
+    uv[i * 2 + 1] = (pos.getComponent(i, v) - bb.min.getComponent(v)) / dv;
+  }
+  geo.setAttribute('uv', new T.BufferAttribute(uv, 2));
+}
+
+/** What the desk monitor is showing. Drawn once into a canvas: a workspace
+ *  window on the left and the signature set large on the right, because from
+ *  where the tour stands the panel is about a hand wide and anything at true
+ *  UI scale would be illegible mush. */
+function monitorTexture(): T.Texture {
+  const W = 1024;
+  const H = 468;                                   // the panel is ~2.19 : 1
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = c.getContext('2d')!;
+
+  const bg = g.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#12161c');
+  bg.addColorStop(1, '#080a0e');
+  g.fillStyle = bg;
+  g.fillRect(0, 0, W, H);
+
+  g.fillStyle = 'rgba(255, 255, 255, 0.06)';       // menu bar
+  g.fillRect(0, 0, W, 34);
+  g.fillStyle = 'rgba(232, 226, 214, 0.62)';
+  g.font = '500 17px ui-monospace, Menlo, Consolas, monospace';
+  g.fillText('atelier', 24, 23);
+  g.textAlign = 'right';
+  g.fillText('21:40', W - 24, 23);
+  g.textAlign = 'left';
+
+  const wx = 40;
+  const wy = 74;
+  const ww = 470;
+  const wh = H - 150;
+  g.fillStyle = 'rgba(255, 255, 255, 0.06)';       // window
+  g.fillRect(wx, wy, ww, wh);
+  g.fillStyle = 'rgba(255, 255, 255, 0.085)';
+  g.fillRect(wx, wy, ww, 28);
+  for (let i = 0; i < 3; i++) {
+    g.beginPath();
+    g.arc(wx + 22 + i * 19, wy + 14, 5, 0, Math.PI * 2);
+    g.fillStyle = ['#c9705d', '#c6a15e', '#7f9b6d'][i];
+    g.fill();
+  }
+  const rows: [number, number][] = [
+    [0, 0.78], [1, 0.52], [1, 0.63], [2, 0.40],
+    [1, 0.58], [0, 0.70], [0, 0.46],
+  ];
+  rows.forEach(([indent, width], i) => {
+    g.fillStyle = i === 3 ? 'rgba(192, 160, 113, 0.65)' : 'rgba(232, 226, 214, 0.28)';
+    g.fillRect(wx + 26 + indent * 22, wy + 56 + i * 30, (ww - 70) * width, 7);
+  });
+
+  const cx = wx + ww + (W - wx - ww) / 2 - 16;     // the signature
+  g.textAlign = 'center';
+  g.strokeStyle = 'rgba(222, 191, 138, 0.3)';
+  g.lineWidth = 1;
+  g.beginPath();
+  g.moveTo(cx - 78, H / 2 - 46);
+  g.lineTo(cx + 78, H / 2 - 46);
+  g.stroke();
+  g.fillStyle = 'rgba(232, 226, 214, 0.5)';
+  g.font = '400 21px ui-serif, Georgia, "Times New Roman", serif';
+  g.fillText('made by', cx, H / 2 - 18);
+  g.fillStyle = 'rgba(222, 191, 138, 0.95)';
+  g.font = '600 46px ui-monospace, Menlo, Consolas, monospace';
+  g.fillText('APKMason', cx, H / 2 + 30);
+  g.fillStyle = 'rgba(222, 191, 138, 0.55)';
+  g.font = '500 27px ui-monospace, Menlo, Consolas, monospace';
+  g.fillText('.dev', cx, H / 2 + 64);
+
+  const t = new T.CanvasTexture(c);
+  t.colorSpace = T.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
 function waterNormalTexture(): T.Texture {
   const N = 256;
   const c = document.createElement('canvas');
@@ -187,6 +281,30 @@ export class World {
         if (pos) this.triangles += (mesh.geometry.index?.count ?? pos.count) / 3;
       }
     });
+
+    // The desk monitor gets its own material, so the shared `glass` used by
+    // the cooktop, the oven door and the spice jars is left untouched.
+    const panel = gltf.scene.getObjectByName('MonitorScreen') as T.Mesh | null;
+    if (panel?.isMesh) {
+      fitScreenUV(panel);
+      const map = monitorTexture();
+      const screen = new T.MeshStandardMaterial({
+        map,
+        emissiveMap: map,
+        emissive: new T.Color(0xffffff),
+        emissiveIntensity: 0.9,
+        roughness: 0.34,
+        metalness: 0,
+        toneMapped: true,
+      });
+      panel.material = screen;
+      // A self-lit panel taking a hard shadow map reads as a smear, not
+      // as shading; the vine above it was landing across the signature.
+      panel.castShadow = false;
+      panel.receiveShadow = false;
+      this.textures.add(map);
+      this.materials.add(screen);
+    }
 
     // Prototypes leave the graph; their instances take over.
     for (const node of protos.values()) node.parent?.remove(node);
